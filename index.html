@@ -3,37 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Text Reader iPhone Ultimate v2</title>
+  <title>Text Reader iPhone Ultimate v3</title>
   <style>
     :root{
       --bg:#f5f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#e5e7eb;
       --primary:#2563eb; --primary2:#1d4ed8; --danger:#dc2626; --ok:#059669;
       --shadow:0 10px 30px rgba(0,0,0,.08); --radius:18px; --reader-size:17px;
       --highlight:#fff7cc; --active:#eff6ff;
-      --bottom-bar-h: 88px;
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    body{
-      margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      background:var(--bg);color:var(--text);line-height:1.5;
-    }
-    .wrap{
-      max-width:1120px;margin:0 auto;
-      padding:16px 14px calc(130px + env(safe-area-inset-bottom));
-    }
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+    .wrap{max-width:1120px;margin:0 auto;padding:16px 14px calc(130px + env(safe-area-inset-bottom))}
     .title{font-size:28px;font-weight:800;margin:8px 0 6px}
     .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
     .card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
-    textarea{
-      width:100%;min-height:220px;border:1px solid var(--line);border-radius:16px;padding:14px;
-      font-size:var(--reader-size);line-height:1.6;resize:vertical;outline:none
-    }
+    textarea{width:100%;min-height:220px;border:1px solid var(--line);border-radius:16px;padding:14px;font-size:var(--reader-size);line-height:1.6;resize:vertical;outline:none}
     textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
     button,select,input[type="range"]{width:100%}
-    button{
-      border:none;border-radius:14px;padding:12px 14px;font-size:16px;font-weight:700;
-      cursor:pointer;background:#eef2ff;color:#1e3a8a
-    }
+    button{border:none;border-radius:14px;padding:12px 14px;font-size:16px;font-weight:700;cursor:pointer;background:#eef2ff;color:#1e3a8a}
     button.primary{background:var(--primary);color:#fff}
     button.primary:active{background:var(--primary2)}
     button.stop{background:#fee2e2;color:#991b1b}
@@ -42,57 +29,35 @@
     @media (min-width:900px){.row{grid-template-columns:1fr 1fr}}
     .controls{display:grid;grid-template-columns:1fr;gap:12px}
     .control{border:1px solid var(--line);border-radius:14px;padding:12px}
-    .control label{
-      display:flex;justify-content:space-between;align-items:center;gap:8px;
-      font-size:14px;color:var(--muted);margin-bottom:8px
-    }
+    .control label{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin-bottom:8px}
     select{border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:16px;background:#fff}
     .triple{display:grid;grid-template-columns:1fr;gap:12px}
     @media (min-width:950px){.triple{grid-template-columns:1fr 1fr 1fr}}
     .segments{display:grid;gap:10px;margin-top:12px}
-    .seg{
-      border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px 13px;
-      font-size:var(--reader-size);cursor:pointer;transition:.15s ease;scroll-margin-top:90px
-    }
+    .seg{border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px 13px;font-size:var(--reader-size);cursor:pointer;transition:.15s ease;scroll-margin-top:90px}
     .seg:hover{transform:translateY(-1px)}
     .seg.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);background:var(--active)}
     .meta{font-size:12px;color:var(--muted);margin-bottom:4px}
     .hint{font-size:13px;color:var(--muted);margin-top:8px}
     .status{margin-top:8px;font-size:14px;color:var(--muted)}
     .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#f3f4f6;color:#374151;margin-right:6px}
-    .sticky{
-      position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top);
-      background:linear-gradient(to bottom, rgba(245,247,251,1), rgba(245,247,251,.85), rgba(245,247,251,0));
-      backdrop-filter:saturate(180%) blur(12px)
-    }
+    .sticky{position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top);background:linear-gradient(to bottom, rgba(245,247,251,1), rgba(245,247,251,.85), rgba(245,247,251,0));backdrop-filter:saturate(180%) blur(12px)}
     .pill{display:inline-block;background:#eff6ff;color:#1d4ed8;padding:3px 8px;border-radius:999px;font-size:12px}
     .reader-line{padding:4px 6px;border-radius:8px;display:block;font-size:var(--reader-size)}
     .reader-line.current{background:var(--highlight)}
     .segment-text{margin-top:6px;line-height:1.7}
-    .floating-bar-wrap{
-      position:fixed;left:0;right:0;bottom:0;z-index:9999;
-      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-      background:linear-gradient(to top, rgba(245,247,251,0.98), rgba(245,247,251,0.92), rgba(245,247,251,0));
-      backdrop-filter:saturate(180%) blur(16px);
-    }
-    .floating-bar{
-      max-width:1120px;margin:0 auto;background:#ffffffee;border:1px solid var(--line);
-      box-shadow:var(--shadow);border-radius:18px;padding:10px;
-    }
-    .floating-grid{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
-    }
-    @media (min-width:700px){
-      .floating-grid{grid-template-columns:repeat(6,1fr);}
-    }
+    .floating-bar-wrap{position:fixed;left:0;right:0;bottom:0;z-index:9999;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top, rgba(245,247,251,0.98), rgba(245,247,251,0.92), rgba(245,247,251,0));backdrop-filter:saturate(180%) blur(16px)}
+    .floating-bar{max-width:1120px;margin:0 auto;background:#ffffffee;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:18px;padding:10px}
+    .floating-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    @media (min-width:700px){.floating-grid{grid-template-columns:repeat(8,1fr);}}
     .floating-grid button{padding:11px 10px;font-size:15px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="sticky">
-      <div class="title">Đọc lớn văn bản — Ultimate v2</div>
-      <div class="sub">Thanh nút chức năng nổi phía dưới, có lại nút Xóa, và cỡ chữ tăng giảm trực tiếp trong vùng hiển thị.</div>
+      <div class="title">Đọc lớn văn bản — Ultimate v3</div>
+      <div class="sub">Đã sửa các nút điều khiển: dừng xong có thể đọc tiếp, lùi/tới câu sẽ đọc luôn, và thêm nút “Đọc từ đây”.</div>
     </div>
 
     <div class="card">
@@ -155,7 +120,6 @@
               <option value="on">Bật</option>
               <option value="off">Tắt</option>
             </select>
-            <div class="hint">Khi bật, đoạn đang đọc sẽ tự cuộn tới gần giữa màn hình thay vì trôi xuống quá thấp.</div>
           </div>
 
           <div class="status" id="status">Sẵn sàng.</div>
@@ -193,6 +157,7 @@
         <button class="primary" id="splitBtn">Tách đoạn</button>
         <button id="readAllBtn">Đọc từ đầu</button>
         <button id="repeatBtn">Đọc lại</button>
+        <button id="readFromHereBtn">Đọc từ đây</button>
         <button id="prevLineBtn">Lùi 1 câu</button>
         <button id="nextLineBtn">Tới 1 câu</button>
         <button class="stop" id="stopBtn">Dừng</button>
@@ -207,6 +172,7 @@
     const splitBtn = $('splitBtn');
     const readAllBtn = $('readAllBtn');
     const repeatBtn = $('repeatBtn');
+    const readFromHereBtn = $('readFromHereBtn');
     const prevLineBtn = $('prevLineBtn');
     const nextLineBtn = $('nextLineBtn');
     const stopBtn = $('stopBtn');
@@ -235,8 +201,10 @@
     let voices = [];
     let segments = [];
     let currentIndex = -1;
-    let isCancelled = false;
     let currentLineIndex = -1;
+    let isCancelled = false;
+    let currentQueue = [];
+    let queuePointer = 0;
 
     inputText.value = `Xin chào. Đây là bản ultimate.
 
@@ -259,34 +227,34 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
     }
 
     function saveSettings() {
-      localStorage.setItem('reader_ult2_text', inputText.value);
-      localStorage.setItem('reader_ult2_mode', modeSelect.value);
-      localStorage.setItem('reader_ult2_segment_mode', segmentMode.value);
-      localStorage.setItem('reader_ult2_safe', safeMode.value);
-      localStorage.setItem('reader_ult2_pause', pauseMs.value);
-      localStorage.setItem('reader_ult2_voice_vi', voiceVi.value || '');
-      localStorage.setItem('reader_ult2_voice_ko', voiceKo.value || '');
-      localStorage.setItem('reader_ult2_voice_en', voiceEn.value || '');
-      localStorage.setItem('reader_ult2_rate_vi', rateVi.value);
-      localStorage.setItem('reader_ult2_rate_ko', rateKo.value);
-      localStorage.setItem('reader_ult2_rate_en', rateEn.value);
-      localStorage.setItem('reader_ult2_font', fontSize.value);
-      localStorage.setItem('reader_ult2_highlight', highlightToggle.value);
-      localStorage.setItem('reader_ult2_autoscroll', autoScrollToggle.value);
+      localStorage.setItem('reader_ult3_text', inputText.value);
+      localStorage.setItem('reader_ult3_mode', modeSelect.value);
+      localStorage.setItem('reader_ult3_segment_mode', segmentMode.value);
+      localStorage.setItem('reader_ult3_safe', safeMode.value);
+      localStorage.setItem('reader_ult3_pause', pauseMs.value);
+      localStorage.setItem('reader_ult3_voice_vi', voiceVi.value || '');
+      localStorage.setItem('reader_ult3_voice_ko', voiceKo.value || '');
+      localStorage.setItem('reader_ult3_voice_en', voiceEn.value || '');
+      localStorage.setItem('reader_ult3_rate_vi', rateVi.value);
+      localStorage.setItem('reader_ult3_rate_ko', rateKo.value);
+      localStorage.setItem('reader_ult3_rate_en', rateEn.value);
+      localStorage.setItem('reader_ult3_font', fontSize.value);
+      localStorage.setItem('reader_ult3_highlight', highlightToggle.value);
+      localStorage.setItem('reader_ult3_autoscroll', autoScrollToggle.value);
     }
 
     function loadSettings() {
-      inputText.value = localStorage.getItem('reader_ult2_text') || inputText.value;
-      modeSelect.value = localStorage.getItem('reader_ult2_mode') || 'vi-ko';
-      segmentMode.value = localStorage.getItem('reader_ult2_segment_mode') || 'paragraph';
-      safeMode.value = localStorage.getItem('reader_ult2_safe') || 'on';
-      pauseMs.value = localStorage.getItem('reader_ult2_pause') || '260';
-      rateVi.value = localStorage.getItem('reader_ult2_rate_vi') || '1';
-      rateKo.value = localStorage.getItem('reader_ult2_rate_ko') || '1';
-      rateEn.value = localStorage.getItem('reader_ult2_rate_en') || '1';
-      fontSize.value = localStorage.getItem('reader_ult2_font') || '17';
-      highlightToggle.value = localStorage.getItem('reader_ult2_highlight') || 'on';
-      autoScrollToggle.value = localStorage.getItem('reader_ult2_autoscroll') || 'on';
+      inputText.value = localStorage.getItem('reader_ult3_text') || inputText.value;
+      modeSelect.value = localStorage.getItem('reader_ult3_mode') || 'vi-ko';
+      segmentMode.value = localStorage.getItem('reader_ult3_segment_mode') || 'paragraph';
+      safeMode.value = localStorage.getItem('reader_ult3_safe') || 'on';
+      pauseMs.value = localStorage.getItem('reader_ult3_pause') || '260';
+      rateVi.value = localStorage.getItem('reader_ult3_rate_vi') || '1';
+      rateKo.value = localStorage.getItem('reader_ult3_rate_ko') || '1';
+      rateEn.value = localStorage.getItem('reader_ult3_rate_en') || '1';
+      fontSize.value = localStorage.getItem('reader_ult3_font') || '17';
+      highlightToggle.value = localStorage.getItem('reader_ult3_highlight') || 'on';
+      autoScrollToggle.value = localStorage.getItem('reader_ult3_autoscroll') || 'on';
       updateLabels();
     }
 
@@ -332,7 +300,7 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
     }
 
     function chunkText(text) {
-      return sentenceSplit(text).map(part => ({ text: part, lang: detectLang(part) }));
+      return sentenceSplit(text).map((part, idx) => ({ text: part, lang: detectLang(part), lineIndex: idx }));
     }
 
     function getVoiceList(pattern) {
@@ -360,9 +328,9 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       fillVoiceSelect(voiceKo, getVoiceList(/\bko\b|korean|hangul/i), voices);
       fillVoiceSelect(voiceEn, getVoiceList(/\ben\b|english/i), voices);
 
-      const savedVi = localStorage.getItem('reader_ult2_voice_vi');
-      const savedKo = localStorage.getItem('reader_ult2_voice_ko');
-      const savedEn = localStorage.getItem('reader_ult2_voice_en');
+      const savedVi = localStorage.getItem('reader_ult3_voice_vi');
+      const savedKo = localStorage.getItem('reader_ult3_voice_ko');
+      const savedEn = localStorage.getItem('reader_ult3_voice_en');
 
       if (savedVi && getVoiceByName(savedVi)) voiceVi.value = savedVi;
       if (savedKo && getVoiceByName(savedKo)) voiceKo.value = savedKo;
@@ -379,37 +347,37 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
 
       for (const item of chunks) {
         if (mode === 'vi-ko') {
-          if (item.lang === 'vi') queue.push({text:item.text, lang:'vi'});
-          if (item.lang === 'ko') queue.push({text:item.text, lang:'ko'});
+          if (item.lang === 'vi') queue.push({text:item.text, lang:'vi', lineIndex:item.lineIndex});
+          if (item.lang === 'ko') queue.push({text:item.text, lang:'ko', lineIndex:item.lineIndex});
         } else if (mode === 'ko2') {
           if (item.lang === 'ko') {
-            queue.push({text:item.text, lang:'ko', pass:'1/2'});
-            queue.push({text:item.text, lang:'ko', pass:'2/2'});
+            queue.push({text:item.text, lang:'ko', pass:'1/2', lineIndex:item.lineIndex});
+            queue.push({text:item.text, lang:'ko', pass:'2/2', lineIndex:item.lineIndex});
           }
         } else if (mode === 'ko-en') {
-          if (item.lang === 'ko') queue.push({text:item.text, lang:'ko'});
-          if (item.lang === 'en') queue.push({text:item.text, lang:'en'});
+          if (item.lang === 'ko') queue.push({text:item.text, lang:'ko', lineIndex:item.lineIndex});
+          if (item.lang === 'en') queue.push({text:item.text, lang:'en', lineIndex:item.lineIndex});
         } else if (mode === 'ko-vi-ko') {
           if (item.lang === 'ko') {
-            queue.push({text:item.text, lang:'ko', pass:'1'});
-            queue.push({text:item.text, lang:'vi'});
-            queue.push({text:item.text, lang:'ko', pass:'2'});
+            queue.push({text:item.text, lang:'ko', pass:'1', lineIndex:item.lineIndex});
+            queue.push({text:item.text, lang:'vi', lineIndex:item.lineIndex});
+            queue.push({text:item.text, lang:'ko', pass:'2', lineIndex:item.lineIndex});
           } else if (item.lang === 'vi') {
-            queue.push({text:item.text, lang:'vi'});
+            queue.push({text:item.text, lang:'vi', lineIndex:item.lineIndex});
           }
         } else if (mode === 'ko-en-ko') {
           if (item.lang === 'ko') {
-            queue.push({text:item.text, lang:'ko', pass:'1'});
-            queue.push({text:item.text, lang:'en'});
-            queue.push({text:item.text, lang:'ko', pass:'2'});
+            queue.push({text:item.text, lang:'ko', pass:'1', lineIndex:item.lineIndex});
+            queue.push({text:item.text, lang:'en', lineIndex:item.lineIndex});
+            queue.push({text:item.text, lang:'ko', pass:'2', lineIndex:item.lineIndex});
           } else if (item.lang === 'en') {
-            queue.push({text:item.text, lang:'en'});
+            queue.push({text:item.text, lang:'en', lineIndex:item.lineIndex});
           }
         } else if (mode === 'ko-pause-ko') {
           if (item.lang === 'ko') {
-            queue.push({text:item.text, lang:'ko', pass:'1/2'});
+            queue.push({text:item.text, lang:'ko', pass:'1/2', lineIndex:item.lineIndex});
             queue.push({pauseOnly:true});
-            queue.push({text:item.text, lang:'ko', pass:'2/2'});
+            queue.push({text:item.text, lang:'ko', pass:'2/2', lineIndex:item.lineIndex});
           }
         }
       }
@@ -436,7 +404,12 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
           inner += `<span class="reader-line${current}" data-line="${lineIdx}">${escapeHtml(line)}</span>`;
         });
         div.innerHTML = `<div class="meta">Đoạn ${index + 1}</div>${tags}<div class="segment-text">${inner}</div>`;
-        div.addEventListener('click', () => speakSegment(index));
+        div.addEventListener('click', () => {
+          currentIndex = index;
+          currentLineIndex = 0;
+          renderSegments();
+          speakFromCurrentLine();
+        });
         segmentsEl.appendChild(div);
       });
     }
@@ -477,13 +450,14 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       renderSegments();
     }
 
-    function speakUtterancePromise(text, lang, passLabel='') {
+    function speakUtterancePromise(item) {
       return new Promise((resolve) => {
         if (isCancelled) return resolve();
-        const utter = buildUtterance(text, lang);
+        const utter = buildUtterance(item.text, item.lang);
         utter.onstart = () => {
-          let msg = `Đang đọc đoạn ${currentIndex + 1}/${segments.length} — ${langLabel(lang)}`;
-          if (passLabel) msg += ` (${passLabel})`;
+          currentLineIndex = item.lineIndex ?? currentLineIndex;
+          let msg = `Đang đọc đoạn ${currentIndex + 1}/${segments.length} — ${langLabel(item.lang)}`;
+          if (item.pass) msg += ` (${item.pass})`;
           setStatus(msg);
           renderSegments();
           scrollCurrentIntoView();
@@ -494,28 +468,23 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       });
     }
 
-    async function speakQueue(queue, onDone) {
-      isCancelled = false;
-      if (!queue.length) {
-        setStatus('Đoạn này không có nội dung phù hợp với mode đã chọn.');
+    async function runQueueFromPointer(onDone) {
+      if (!currentQueue.length || queuePointer >= currentQueue.length) {
+        setStatus('Không còn nội dung để đọc tiếp.');
         renderSegments();
         if (onDone) onDone();
         return;
       }
 
-      for (let i = 0; i < queue.length; i++) {
-        const item = queue[i];
+      isCancelled = false;
+      for (; queuePointer < currentQueue.length; queuePointer++) {
+        const item = currentQueue[queuePointer];
         if (isCancelled) break;
         if (item.pauseOnly) {
           await wait(parseInt(pauseMs.value, 10));
           continue;
         }
-
-        const lines = sentenceSplit(segments[currentIndex] || '');
-        const foundIndex = lines.findIndex(line => line.trim() === item.text.trim());
-        if (foundIndex >= 0) currentLineIndex = foundIndex;
-
-        await speakUtterancePromise(item.text, item.lang, item.pass || '');
+        await speakUtterancePromise(item);
         if (isCancelled) break;
         await wait(safeMode.value === 'on' ? parseInt(pauseMs.value, 10) : 50);
       }
@@ -523,23 +492,39 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       if (!isCancelled && onDone) onDone();
     }
 
-    function speakSegment(index) {
-      if (!segments[index]) return;
-      currentIndex = index;
-      currentLineIndex = 0;
+    function buildQueueForCurrentSegment() {
+      if (currentIndex < 0 || !segments[currentIndex]) return [];
+      const chunks = chunkText(segments[currentIndex]);
+      return buildQueueFromChunks(chunks);
+    }
+
+    function findQueuePointerForLine(lineIndex) {
+      for (let i = 0; i < currentQueue.length; i++) {
+        const item = currentQueue[i];
+        if (!item.pauseOnly && item.lineIndex >= lineIndex) return i;
+      }
+      return currentQueue.length;
+    }
+
+    function speakFromCurrentLine() {
+      if (currentIndex < 0 || !segments[currentIndex]) return setStatus('Chưa có đoạn để đọc.');
+      currentQueue = buildQueueForCurrentSegment();
+      queuePointer = findQueuePointerForLine(Math.max(0, currentLineIndex));
       stopSpeaking();
-      const chunks = chunkText(segments[index]);
-      const queue = buildQueueFromChunks(chunks);
       setTimeout(() => {
         isCancelled = false;
-        speakQueue(queue);
+        runQueueFromPointer();
       }, 120);
+    }
+
+    function speakSegment(index) {
+      currentIndex = index;
+      currentLineIndex = 0;
+      speakFromCurrentLine();
     }
 
     function readAllFrom(index = 0) {
       if (!segments.length) return;
-      currentIndex = index;
-      currentLineIndex = 0;
       stopSpeaking();
 
       const readOne = async (idx) => {
@@ -550,11 +535,11 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
         }
         currentIndex = idx;
         currentLineIndex = 0;
-        const chunks = chunkText(segments[idx]);
-        const queue = buildQueueFromChunks(chunks);
+        currentQueue = buildQueueForCurrentSegment();
+        queuePointer = 0;
         await wait(120);
         if (isCancelled) return;
-        await speakQueue(queue, () => readOne(idx + 1));
+        await runQueueFromPointer(() => readOne(idx + 1));
       };
 
       setTimeout(() => {
@@ -563,14 +548,15 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       }, 120);
     }
 
-    function jumpLine(delta) {
+    function jumpLine(delta, andSpeak=true) {
       if (!segments.length) return;
       if (currentIndex < 0) currentIndex = 0;
       const lines = sentenceSplit(segments[currentIndex]);
       if (!lines.length) return;
-      currentLineIndex = Math.max(0, Math.min(lines.length - 1, currentLineIndex + delta));
+      currentLineIndex = Math.max(0, Math.min(lines.length - 1, (currentLineIndex < 0 ? 0 : currentLineIndex) + delta));
       renderSegments();
       scrollCurrentIntoView();
+      if (andSpeak) speakFromCurrentLine();
     }
 
     splitBtn.addEventListener('click', () => {
@@ -578,6 +564,8 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       segments = splitText(inputText.value, segmentMode.value);
       currentIndex = segments.length ? 0 : -1;
       currentLineIndex = 0;
+      currentQueue = [];
+      queuePointer = 0;
       renderSegments();
       setStatus(segments.length ? `Đã tách ${segments.length} đoạn.` : 'Không có nội dung để tách.');
     });
@@ -594,11 +582,17 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
     repeatBtn.addEventListener('click', () => {
       if (currentIndex < 0 && segments.length) currentIndex = 0;
       if (currentIndex < 0) return setStatus('Chưa có đoạn để đọc lại.');
-      speakSegment(currentIndex);
+      speakFromCurrentLine();
     });
 
-    prevLineBtn.addEventListener('click', () => jumpLine(-1));
-    nextLineBtn.addEventListener('click', () => jumpLine(1));
+    readFromHereBtn.addEventListener('click', () => {
+      if (currentIndex < 0) currentIndex = 0;
+      if (currentLineIndex < 0) currentLineIndex = 0;
+      speakFromCurrentLine();
+    });
+
+    prevLineBtn.addEventListener('click', () => jumpLine(-1, true));
+    nextLineBtn.addEventListener('click', () => jumpLine(1, true));
     stopBtn.addEventListener('click', stopSpeaking);
 
     clearBtn.addEventListener('click', () => {
@@ -607,6 +601,8 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       segments = [];
       currentIndex = -1;
       currentLineIndex = -1;
+      currentQueue = [];
+      queuePointer = 0;
       saveSettings();
       renderSegments();
       setStatus('Đã xóa nội dung.');
@@ -625,7 +621,7 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       loadSettings();
       setupVoices();
       segments = splitText(inputText.value, segmentMode.value);
-      if (segments.length) currentIndex = 0;
+      if (segments.length) { currentIndex = 0; currentLineIndex = 0; }
       renderSegments();
       setStatus('Sẵn sàng.');
       speechSynthesis.onvoiceschanged = () => {
