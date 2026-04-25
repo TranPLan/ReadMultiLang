@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Text Reader iPhone Ultimate v3</title>
+  <title>Text Reader iPhone Ultimate v5</title>
   <style>
     :root{
       --bg:#f5f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#e5e7eb;
@@ -49,15 +49,15 @@
     .floating-bar-wrap{position:fixed;left:0;right:0;bottom:0;z-index:9999;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(to top, rgba(245,247,251,0.98), rgba(245,247,251,0.92), rgba(245,247,251,0));backdrop-filter:saturate(180%) blur(16px)}
     .floating-bar{max-width:1120px;margin:0 auto;background:#ffffffee;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:18px;padding:10px}
     .floating-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-    @media (min-width:700px){.floating-grid{grid-template-columns:repeat(8,1fr);}}
+    @media (min-width:700px){.floating-grid{grid-template-columns:repeat(9,1fr);}}
     .floating-grid button{padding:11px 10px;font-size:15px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="sticky">
-      <div class="title">Đọc lớn văn bản — Ultimate v4 TXT/SRT</div>
-      <div class="sub">Có thể paste trực tiếp hoặc upload TXT/SRT. SRT tự bỏ timing; khi đọc tự bỏ tiền tố VI:, KO:, EN:.</div>
+      <div class="title">Đọc lớn văn bản — Ultimate v5 Shadowing</div>
+      <div class="sub">Upload/Paste TXT-SRT, tự bỏ timing và VI/KO/EN. V5 thêm shadowing, tap từng câu, export TXT clean.</div>
     </div>
 
     <div class="card">
@@ -72,7 +72,9 @@
         <div class="control">
           <label><span>Làm sạch khi đọc</span><span class="pill">Auto</span></label>
           <button id="cleanSrtBtn" class="ok">Lọc SRT / bỏ VI-KO-EN</button>
-          <div class="hint">Dùng khi bạn paste trực tiếp SRT hoặc text có đầu dòng VI:, KO:, EN:.</div>
+          <div style="height:8px"></div>
+          <button id="exportTxtBtn">Export TXT clean</button>
+          <div class="hint">Dùng khi bạn paste trực tiếp SRT hoặc text có đầu dòng VI:, KO:, EN:. Export TXT dùng cho tool PC/561.</div>
         </div>
       </div>
 
@@ -87,6 +89,7 @@
               <option value="ko-vi-ko">Ko → Vi → Ko</option>
               <option value="ko-en-ko">Ko → En → Ko</option>
               <option value="ko-pause-ko">Ko → pause → Ko</option>
+              <option value="ko-shadow">Shadowing: Ko → pause dài → Ko</option>
             </select>
           </div>
 
@@ -117,6 +120,20 @@
           <div class="control">
             <label for="pauseMs"><span>Nghỉ giữa các lượt</span><strong id="pauseMsValue">260 ms</strong></label>
             <input id="pauseMs" type="range" min="100" max="900" step="10" value="260" />
+          </div>
+
+          <div class="control">
+            <label for="shadowPauseMs"><span>Shadow pause</span><strong id="shadowPauseMsValue">2500 ms</strong></label>
+            <input id="shadowPauseMs" type="range" min="800" max="5000" step="100" value="2500" />
+            <div class="hint">Dùng cho mode shadowing: nghe xong có thời gian tự nói, rồi nghe lại câu chuẩn.</div>
+          </div>
+
+          <div class="control">
+            <label for="tapAction"><span>Khi tap vào câu</span></label>
+            <select id="tapAction">
+              <option value="single">Chỉ đọc câu đó</option>
+              <option value="from">Đọc từ câu đó</option>
+            </select>
           </div>
 
           <div class="control">
@@ -174,6 +191,7 @@
         <button id="prevLineBtn">Lùi 1 câu</button>
         <button id="nextLineBtn">Tới 1 câu</button>
         <button class="stop" id="stopBtn">Dừng</button>
+        <button id="readOneLineBtn">Đọc 1 câu</button>
         <button class="ok" id="clearBtn">Xóa</button>
       </div>
     </div>
@@ -184,10 +202,12 @@
     const inputText = $('inputText');
     const fileInput = $('fileInput');
     const cleanSrtBtn = $('cleanSrtBtn');
+    const exportTxtBtn = $('exportTxtBtn');
     const splitBtn = $('splitBtn');
     const readAllBtn = $('readAllBtn');
     const repeatBtn = $('repeatBtn');
     const readFromHereBtn = $('readFromHereBtn');
+    const readOneLineBtn = $('readOneLineBtn');
     const prevLineBtn = $('prevLineBtn');
     const nextLineBtn = $('nextLineBtn');
     const stopBtn = $('stopBtn');
@@ -197,6 +217,9 @@
     const safeMode = $('safeMode');
     const pauseMs = $('pauseMs');
     const pauseMsValue = $('pauseMsValue');
+    const shadowPauseMs = $('shadowPauseMs');
+    const shadowPauseMsValue = $('shadowPauseMsValue');
+    const tapAction = $('tapAction');
     const statusEl = $('status');
     const segmentsEl = $('segments');
     const voiceVi = $('voiceVi');
@@ -237,6 +260,7 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       rateKoValue.textContent = Number(rateKo.value).toFixed(2).replace(/\.00$/, '') + 'x';
       rateEnValue.textContent = Number(rateEn.value).toFixed(2).replace(/\.00$/, '') + 'x';
       pauseMsValue.textContent = pauseMs.value + ' ms';
+      shadowPauseMsValue.textContent = shadowPauseMs.value + ' ms';
       fontSizeValue.textContent = fontSize.value + ' px';
       document.documentElement.style.setProperty('--reader-size', fontSize.value + 'px');
     }
@@ -247,6 +271,8 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       localStorage.setItem('reader_ult3_segment_mode', segmentMode.value);
       localStorage.setItem('reader_ult3_safe', safeMode.value);
       localStorage.setItem('reader_ult3_pause', pauseMs.value);
+      localStorage.setItem('reader_ult5_shadow_pause', shadowPauseMs.value);
+      localStorage.setItem('reader_ult5_tap_action', tapAction.value);
       localStorage.setItem('reader_ult3_voice_vi', voiceVi.value || '');
       localStorage.setItem('reader_ult3_voice_ko', voiceKo.value || '');
       localStorage.setItem('reader_ult3_voice_en', voiceEn.value || '');
@@ -264,6 +290,8 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       segmentMode.value = localStorage.getItem('reader_ult3_segment_mode') || 'paragraph';
       safeMode.value = localStorage.getItem('reader_ult3_safe') || 'on';
       pauseMs.value = localStorage.getItem('reader_ult3_pause') || '260';
+      shadowPauseMs.value = localStorage.getItem('reader_ult5_shadow_pause') || '2500';
+      tapAction.value = localStorage.getItem('reader_ult5_tap_action') || 'single';
       rateVi.value = localStorage.getItem('reader_ult3_rate_vi') || '1';
       rateKo.value = localStorage.getItem('reader_ult3_rate_ko') || '1';
       rateEn.value = localStorage.getItem('reader_ult3_rate_en') || '1';
@@ -443,6 +471,12 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
             queue.push({pauseOnly:true});
             queue.push({text:item.text, lang:'ko', pass:'2/2', lineIndex:item.lineIndex});
           }
+        } else if (mode === 'ko-shadow') {
+          if (item.lang === 'ko') {
+            queue.push({text:item.text, lang:'ko', pass:'nghe mẫu', lineIndex:item.lineIndex});
+            queue.push({pauseOnly:true, duration:parseInt(shadowPauseMs.value, 10), label:'Tự nói shadowing...'});
+            queue.push({text:item.text, lang:'ko', pass:'nghe lại', lineIndex:item.lineIndex});
+          }
         }
       }
 
@@ -468,6 +502,16 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
           inner += `<span class="reader-line${current}" data-line="${lineIdx}">${escapeHtml(line)}</span>`;
         });
         div.innerHTML = `<div class="meta">Đoạn ${index + 1}</div>${tags}<div class="segment-text">${inner}</div>`;
+        div.querySelectorAll('.reader-line').forEach(lineEl => {
+          lineEl.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            currentIndex = index;
+            currentLineIndex = parseInt(lineEl.dataset.line || '0', 10);
+            renderSegments();
+            if (tapAction.value === 'from') speakFromCurrentLine();
+            else speakCurrentLineOnly();
+          });
+        });
         div.addEventListener('click', () => {
           currentIndex = index;
           currentLineIndex = 0;
@@ -545,7 +589,8 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
         const item = currentQueue[queuePointer];
         if (isCancelled) break;
         if (item.pauseOnly) {
-          await wait(parseInt(pauseMs.value, 10));
+          if (item.label) setStatus(item.label);
+          await wait(item.duration || parseInt(pauseMs.value, 10));
           continue;
         }
         await speakUtterancePromise(item);
@@ -568,6 +613,20 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
         if (!item.pauseOnly && item.lineIndex >= lineIndex) return i;
       }
       return currentQueue.length;
+    }
+
+    function speakCurrentLineOnly() {
+      if (currentIndex < 0 || !segments[currentIndex]) return setStatus('Chưa có câu để đọc.');
+      const lines = sentenceSplit(segments[currentIndex]);
+      const line = lines[currentLineIndex] || '';
+      if (!line) return setStatus('Chưa có câu để đọc.');
+      currentQueue = buildQueueFromChunks([{ text: stripSpeakerPrefix(line), lang: detectLang(line), lineIndex: currentLineIndex }]);
+      queuePointer = 0;
+      stopSpeaking();
+      setTimeout(() => {
+        isCancelled = false;
+        runQueueFromPointer();
+      }, 120);
     }
 
     function speakFromCurrentLine() {
@@ -645,6 +704,32 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       }
     });
 
+    function downloadTextFile(filename, content) {
+      const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+    }
+
+    function yymmdd() {
+      const d = new Date();
+      const yy = String(d.getFullYear()).slice(-2);
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return yy + mm + dd;
+    }
+
+    exportTxtBtn.addEventListener('click', () => {
+      const clean = looksLikeSrt(inputText.value) ? extractTextFromSrt(inputText.value) : cleanReadableText(inputText.value);
+      if (!clean) return setStatus('Không có nội dung để export.');
+      downloadTextFile(`reader_clean_${yymmdd()}.txt`, clean + '\n');
+      setStatus('Đã export TXT clean.');
+    });
+
     cleanSrtBtn.addEventListener('click', () => {
       inputText.value = looksLikeSrt(inputText.value) ? extractTextFromSrt(inputText.value) : cleanReadableText(inputText.value);
       saveSettings();
@@ -689,6 +774,12 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       speakFromCurrentLine();
     });
 
+    readOneLineBtn.addEventListener('click', () => {
+      if (currentIndex < 0) currentIndex = 0;
+      if (currentLineIndex < 0) currentLineIndex = 0;
+      speakCurrentLineOnly();
+    });
+
     prevLineBtn.addEventListener('click', () => jumpLine(-1, true));
     nextLineBtn.addEventListener('click', () => jumpLine(1, true));
     stopBtn.addEventListener('click', stopSpeaking);
@@ -706,10 +797,10 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       setStatus('Đã xóa nội dung.');
     });
 
-    [modeSelect, segmentMode, safeMode, voiceVi, voiceKo, voiceEn, highlightToggle, autoScrollToggle].forEach(el => {
+    [modeSelect, segmentMode, safeMode, voiceVi, voiceKo, voiceEn, highlightToggle, autoScrollToggle, tapAction].forEach(el => {
       el.addEventListener('change', () => { saveSettings(); renderSegments(); });
     });
-    [rateVi, rateKo, rateEn, pauseMs, fontSize].forEach(el => {
+    [rateVi, rateKo, rateEn, pauseMs, shadowPauseMs, fontSize].forEach(el => {
       el.addEventListener('input', () => { updateLabels(); saveSettings(); renderSegments(); });
       el.addEventListener('change', () => { updateLabels(); saveSettings(); renderSegments(); });
     });
