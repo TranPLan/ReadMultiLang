@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Text Reader iPhone Ultimate v6 Audio Sync</title>
+  <title>Text Reader iPhone Ultimate v6.1 Audio Floating Controls</title>
   <style>
     :root{
       --bg:#f5f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --line:#e5e7eb;
@@ -56,14 +56,18 @@
     .floating-bar{max-width:1120px;margin:0 auto;background:#ffffffee;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:18px;padding:10px}
     .floating-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
     @media (min-width:700px){.floating-grid{grid-template-columns:repeat(10,1fr);}}
-    .floating-grid button{padding:11px 10px;font-size:15px}
+     .floating-grid button{padding:11px 10px;font-size:15px}
+    .floating-audio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    @media (min-width:700px){.floating-audio-grid{grid-template-columns:1fr 1fr 2fr;}}
+    .floating-audio-grid button{padding:12px 10px;font-size:15px}
+    .audio-mini-status{display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line);border-radius:14px;padding:10px;background:#f9fafb;color:var(--muted);font-size:13px;min-height:42px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="sticky">
-      <div class="title">Đọc lớn văn bản — Ultimate v6 Audio Sync</div>
-      <div class="sub">Upload/Paste TXT-SRT, đọc TTS như v5.1, thêm upload audio/mp3 và highlight theo timing SRT.</div>
+      <div class="title">Đọc lớn văn bản — Ultimate v6.1 Audio Sync</div>
+      <div class="sub">Upload/Paste TXT-SRT, đọc TTS như v5.1, thêm audio sync và nút Play/Pause/Dừng audio nổi.</div>
     </div>
 
     <div class="card">
@@ -233,6 +237,11 @@
         <button id="playAudioHereFloatBtn">Audio từ đây</button>
         <button class="ok" id="clearBtn">Xóa</button>
       </div>
+      <div class="floating-audio-grid">
+        <button class="primary" id="audioPlayPauseFloatBtn">▶️ Play/Pause Audio</button>
+        <button class="stop" id="audioStopFloatBtn">⏸ Dừng Audio</button>
+        <div class="audio-mini-status" id="audioMiniStatus">Audio: chưa phát</div>
+      </div>
     </div>
   </div>
 
@@ -256,6 +265,9 @@
     const readFromHereBtn = $('readFromHereBtn');
     const readOneLineBtn = $('readOneLineBtn');
     const playAudioHereFloatBtn = $('playAudioHereFloatBtn');
+    const audioPlayPauseFloatBtn = $('audioPlayPauseFloatBtn');
+    const audioStopFloatBtn = $('audioStopFloatBtn');
+    const audioMiniStatus = $('audioMiniStatus');
     const prevLineBtn = $('prevLineBtn');
     const nextLineBtn = $('nextLineBtn');
     const stopBtn = $('stopBtn');
@@ -447,6 +459,45 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
         syncBadge.textContent = 'Chưa có audio';
         audioStatus.textContent = 'Khi audio chạy, nếu có timing từ SRT, câu hiện tại sẽ tự highlight.';
       }
+      updateFloatingAudioStatus();
+    }
+
+    function updateFloatingAudioStatus() {
+      if (!audioMiniStatus || !audioPlayPauseFloatBtn) return;
+      if (!audioPlayer.src) {
+        audioMiniStatus.textContent = 'Audio: chưa upload';
+        audioPlayPauseFloatBtn.textContent = '▶️ Play/Pause Audio';
+        return;
+      }
+      const now = formatTime(audioPlayer.currentTime || 0);
+      const total = isFinite(audioPlayer.duration) ? formatTime(audioPlayer.duration) : '--:--';
+      if (audioPlayer.paused) {
+        audioMiniStatus.textContent = `Audio paused · ${now} / ${total}`;
+        audioPlayPauseFloatBtn.textContent = '▶️ Play Audio';
+      } else {
+        audioMiniStatus.textContent = `Audio playing · ${now} / ${total}`;
+        audioPlayPauseFloatBtn.textContent = '⏸ Pause Audio';
+      }
+    }
+
+    function toggleFloatingAudioPlayPause() {
+      if (!audioPlayer.src) return setStatus('Bạn chưa upload audio.');
+      speechSynthesis.cancel();
+      isCancelled = true;
+      if (audioPlayer.paused) {
+        audioPlayer.play().catch(() => setStatus('iPhone cần bạn bấm Play trên audio player một lần.'));
+      } else {
+        audioPlayer.pause();
+        setStatus('Đã pause audio.');
+      }
+      updateFloatingAudioStatus();
+    }
+
+    function pauseFloatingAudio() {
+      if (!audioPlayer.src) return setStatus('Bạn chưa upload audio.');
+      audioPlayer.pause();
+      setStatus('Đã dừng/pause audio.');
+      updateFloatingAudioStatus();
     }
 
     function findCueIndexByTime(time) {
@@ -1012,6 +1063,7 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
     });
 
     audioPlayer.addEventListener('timeupdate', () => {
+      updateFloatingAudioStatus();
       if (!srtCues.length) return;
       const idx = findCueIndexByTime(audioPlayer.currentTime);
       if (idx >= 0 && idx !== lastAudioCueIndex) {
@@ -1024,7 +1076,10 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       }
     });
 
-    audioPlayer.addEventListener('ended', () => setStatus('Audio đã chạy xong.'));
+    audioPlayer.addEventListener('play', updateFloatingAudioStatus);
+    audioPlayer.addEventListener('pause', updateFloatingAudioStatus);
+    audioPlayer.addEventListener('loadedmetadata', updateFloatingAudioStatus);
+    audioPlayer.addEventListener('ended', () => { setStatus('Audio đã chạy xong.'); updateFloatingAudioStatus(); });
 
     audioOffset.addEventListener('input', () => {
       updateLabels();
@@ -1043,6 +1098,8 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
     audioTapMode.addEventListener('change', saveSettings);
     playAudioHereBtn.addEventListener('click', () => jumpAudioToCurrent(true));
     playAudioHereFloatBtn.addEventListener('click', () => jumpAudioToCurrent(true));
+    audioPlayPauseFloatBtn.addEventListener('click', toggleFloatingAudioPlayPause);
+    audioStopFloatBtn.addEventListener('click', pauseFloatingAudio);
 
     if ('speechSynthesis' in window) {
       loadSettings();
@@ -1051,6 +1108,7 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
       if (segments.length) { currentIndex = 0; currentLineIndex = 0; }
       renderSegments();
       updateSyncBadge();
+      updateFloatingAudioStatus();
       setStatus('Sẵn sàng.');
       speechSynthesis.onvoiceschanged = () => {
         setupVoices();
