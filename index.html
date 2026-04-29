@@ -61,6 +61,23 @@
     @media (min-width:700px){.floating-audio-grid{grid-template-columns:1fr 1fr 2fr;}}
     .floating-audio-grid button{padding:12px 10px;font-size:15px}
     .audio-mini-status{display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line);border-radius:14px;padding:10px;background:#f9fafb;color:var(--muted);font-size:13px;min-height:42px}
+
+    /* v6.2: iPhone compact floating controls */
+    .float-toggle{display:none}
+    @media (max-width:600px){
+      .wrap{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+      .floating-bar-wrap{padding:0;background:transparent;backdrop-filter:none;pointer-events:none}
+      .floating-bar{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:min(92vw,360px);max-height:58vh;overflow:auto;padding:10px;border-radius:20px;pointer-events:auto;transform:translateY(calc(100% + 18px));opacity:0;transition:.18s ease}
+      .floating-bar-wrap.open .floating-bar{transform:translateY(0);opacity:1}
+      .float-toggle{display:flex;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:10000;width:58px;height:58px;border-radius:999px;align-items:center;justify-content:center;background:var(--primary);color:white;border:0;box-shadow:0 12px 30px rgba(0,0,0,.22);font-size:22px;font-weight:900;pointer-events:auto}
+      .floating-bar-wrap.open .float-toggle{bottom:calc(min(58vh,470px) + 26px + env(safe-area-inset-bottom));background:#111827}
+      .floating-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+      .floating-grid button{padding:10px 6px;font-size:13px;border-radius:12px;min-height:48px}
+      .floating-audio-grid{grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}
+      .floating-audio-grid button{padding:10px 6px;font-size:13px;border-radius:12px;min-height:48px}
+      .audio-mini-status{grid-column:1/-1;font-size:12px;padding:8px;min-height:36px}
+      body.float-open{overflow:hidden}
+    }
   </style>
 </head>
 <body>
@@ -223,7 +240,8 @@
     </div>
   </div>
 
-  <div class="floating-bar-wrap">
+  <div class="floating-bar-wrap" id="floatingBarWrap">
+    <button class="float-toggle" id="floatToggleBtn" aria-label="Mở/đóng nút nổi">☰</button>
     <div class="floating-bar">
       <div class="floating-grid">
         <button class="primary" id="splitBtn">Tách đoạn</button>
@@ -268,6 +286,8 @@
     const audioPlayPauseFloatBtn = $('audioPlayPauseFloatBtn');
     const audioStopFloatBtn = $('audioStopFloatBtn');
     const audioMiniStatus = $('audioMiniStatus');
+    const floatingBarWrap = $('floatingBarWrap');
+    const floatToggleBtn = $('floatToggleBtn');
     const prevLineBtn = $('prevLineBtn');
     const nextLineBtn = $('nextLineBtn');
     const stopBtn = $('stopBtn');
@@ -1100,6 +1120,28 @@ Tiếng Việt rồi tới 한국어 rồi tới English trong cùng một đo�
     playAudioHereFloatBtn.addEventListener('click', () => jumpAudioToCurrent(true));
     audioPlayPauseFloatBtn.addEventListener('click', toggleFloatingAudioPlayPause);
     audioStopFloatBtn.addEventListener('click', pauseFloatingAudio);
+
+    function closeFloatingBarOnMobile(){
+      if (window.matchMedia('(max-width:600px)').matches) {
+        floatingBarWrap.classList.remove('open');
+        document.body.classList.remove('float-open');
+        floatToggleBtn.textContent = '☰';
+      }
+    }
+
+    function toggleFloatingBar(){
+      const isOpen = floatingBarWrap.classList.toggle('open');
+      document.body.classList.toggle('float-open', isOpen);
+      floatToggleBtn.textContent = isOpen ? '×' : '☰';
+    }
+
+    floatToggleBtn.addEventListener('click', toggleFloatingBar);
+    document.querySelectorAll('.floating-bar button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const keepOpenIds = new Set(['audioPlayPauseFloatBtn','audioStopFloatBtn']);
+        if (!keepOpenIds.has(btn.id)) setTimeout(closeFloatingBarOnMobile, 120);
+      });
+    });
 
     if ('speechSynthesis' in window) {
       loadSettings();
